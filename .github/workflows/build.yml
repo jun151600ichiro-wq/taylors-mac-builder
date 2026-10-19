@@ -1,0 +1,36 @@
+name: Build Mac App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: コードを取得
+        uses: actions/checkout@v4
+
+      - name: Pythonをセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 必要なライブラリをインストール
+        run: |
+          pip install pyinstaller opencv-python numpy easyocr mss pyautogui pyperclip plyer
+
+      - name: Mac用アプリをビルド
+        run: |
+          pyinstaller --noconsole --windowed --name "TaylorsAttendance_Mac" orimainios.py
+
+      - name: ZIPに圧縮
+        run: |
+          cd dist
+          zip -r TaylorsAttendance_Mac.zip TaylorsAttendance_Mac.app
+
+      - name: 完成品をダウンロードできるように保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: TaylorsAttendance_Mac_App
+          path: dist/TaylorsAttendance_Mac.zip
